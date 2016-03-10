@@ -8,8 +8,11 @@ enduser_setup.start(
   end,
   function(err, str)
     print("enduser_setup: Err #" .. err .. ": " .. str)
+    node.restart()
   end
 );
 gpio.write(0, gpio.HIGH)    --LED OFF
 gpio.mode(0, gpio.OUTPUT)
+
+dofile("run.lua")
 

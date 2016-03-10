@@ -18,8 +18,8 @@ end
 LeweiTcpClient.addUserSwitch(test,"switch01",1)
 LeweiTcpClient.addUserSwitch(test2,"switch02",1)
 
-tmr.alarm(0, 15000, 1, function()
-    uart.alt(1)     --use alternate pins GPIO13 and GPIO15
+tmr.alarm(0, 30000, 1, function()
+    --[[uart.alt(1)     --use alternate pins GPIO13 and GPIO15
     uart.setup(0, 9600, 8, 0, 1, 0)
     uart.write(0,0x01,0x10,0x01,0xEC)
     uart.on("data", 14,
@@ -32,12 +32,12 @@ tmr.alarm(0, 15000, 1, function()
         v= (string.byte(data,6)*256+string.byte(data,7))/10
         print("OutputV="..v)
         LeweiTcpClient.appendSensorValue("OV",v)   
-        v = (adc.read(0)-512)*0.15
-        print("batteryA="..v)
-        LeweiTcpClient.sendSensorValue("BA",v)
-        uart.on("data") -- unregister callback function
-    end, 0)
         
-    
+        uart.on("data") -- unregister callback function
+    end, 0)]]
+        
+    v = (adc.read(0)-512)*0.15
+    print("batteryA="..v)
+    LeweiTcpClient.sendSensorValue("BA",v)
     v=nil 
 end)
