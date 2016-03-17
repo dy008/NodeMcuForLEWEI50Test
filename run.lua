@@ -18,26 +18,44 @@ end
 LeweiTcpClient.addUserSwitch(test,"switch01",1)
 LeweiTcpClient.addUserSwitch(test2,"switch02",1)
 
-tmr.alarm(0, 30000, 1, function()
-    --[[uart.alt(1)     --use alternate pins GPIO13 and GPIO15
-    uart.setup(0, 9600, 8, 0, 1, 0)
-    uart.write(0,0x01,0x10,0x01,0xEC)
+local UartRecive = 0
+tmr.alarm(0, 5000, 1, function()
+--[[    uart.alt(1)     --use alternate pins GPIO13 and GPIO15
+    uart.setup(0, 115200, 8, 0, 1, 0)
+    uart.write(0,0x01,0x10,0x01,0xEC)    
     uart.on("data", 14,
         function(data)
         uart.alt(0)     --Don't use alternate pins GPIO13 and GPIO15
         print("recived--"..#data)
         v= (string.byte(data,8)*256+string.byte(data,9))/10
         print("battery="..v)
-        LeweiTcpClient.appendSensorValue("BV",v)
+        --LeweiTcpClient.appendSensorValue("BV",v)
         v= (string.byte(data,6)*256+string.byte(data,7))/10
         print("OutputV="..v)
-        LeweiTcpClient.appendSensorValue("OV",v)   
+        --LeweiTcpClient.appendSensorValue("OV",v)   
         
+        UartRecive = 1
+        gpio.write(0, gpio.HIGH)
         uart.on("data") -- unregister callback function
-    end, 0)]]
+    end, 0)
+    
+    while  UartRecive == 0 do
+    gpio.write(0, gpio.LOW)
+    end
+]]
+  
+    local SCK = 5
+    local SDA = 6
+    local sht10 = require("SHT1x")
+    local t2,h2 =sht10.read_th(SCK,SDA)
+    -- release module
+    sht10 = nil
+
         
     v = (adc.read(0)-512)*0.15
     print("batteryA="..v)
-    LeweiTcpClient.sendSensorValue("BA",v)
-    v=nil 
+    LeweiTcpClient.appendSensorValue("T2",t2)
+    print("SHT10 Temperature="..t2)
+    LeweiTcpClient.sendSensorValue("H2",h2)
+    print("SHT10 Humidity="..h2) 
 end)
